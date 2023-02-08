@@ -5,6 +5,8 @@ plugins {
     id 'io.freefair.lombok' version '6.4.3'
 }
 
+apply plugin: 'maven-publish'
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
@@ -28,3 +30,11 @@ tasks.named('test') {
 bootJar { enabled = false }
 
 jar { enabled = true }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+}
