@@ -1,0 +1,70 @@
+{
+  "properties": [
+    {
+      "name": "packet-logger.enabled",
+      "type": "java.lang.Boolean",
+      "description": "패킷 로거 활성화 여부.",
+      "defaultValue": false
+    },
+    {
+      "name": "packet-logger.service_name",
+      "type": "java.lang.String",
+      "description": "service name 정보."
+    },
+    {
+      "name": "packet-logger.hide_keywords",
+      "type": "java.util.List<java.lang.String>",
+      "description": "민감정보 필터링 키워드.",
+      "defaultValue": []
+    },
+    {
+      "name": "packet-logger.send_headers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "수신 헤더 필터링 정보.",
+      "defaultValue": [
+        "content-type",
+        "content-length"
+      ]
+    },
+    {
+      "name": "packet-logger.receive_headers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "송신 헤더 필터링 정보.",
+      "defaultValue": [
+        "user-agent",
+        "x-forwarded-for",
+        "x-b3-traceid",
+        "content-type",
+        "content-length"
+      ]
+    },
+    {
+      "name": "packet-logger.drop_response_value",
+      "type": "java.lang.Boolean",
+      "description": "패킷 응답 body 로깅 비활성화.",
+      "defaultValue": false
+    },
+    {
+      "name": "packet-logger.register_pattern",
+      "type": "java.util.List<java.lang.String>",
+      "description": "path variable 등록 패턴.",
+      "defaultValue": []
+    },
+    {
+      "name": "packet-logger.drop_event",
+      "type": "java.util.List<java.lang.String>",
+      "description": "drop 이벤트 목록.",
+      "defaultValue": [
+        "/healthCheck/_check",
+        "/actuator/health",
+        "/actuator/info"
+      ]
+    },
+    {
+      "name": "packet-logger.tag",
+      "type": "java.lang.String",
+      "description": "cloudwatch 연동 tag 정보.",
+      "defaultValue": "packet-logger"
+    }
+  ]
+}

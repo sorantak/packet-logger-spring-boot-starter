@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.example.packetlogger.config.PacketLoggerAutoConfiguration,\
+  com.example.packetlogger.filter.LoggerFilter
