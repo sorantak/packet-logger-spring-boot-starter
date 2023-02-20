@@ -66,9 +66,11 @@ public class LoggerFilter extends OncePerRequestFilter {
         LocalDateTime start = LocalDateTime.now();
 
         filterChain.doFilter(request, response);
+        doLogger(request, response, start);
         try {
-            doLogger(request, response, start);
-        } catch (Exception ignored) {
+//            doLogger(request, response, start);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         response.copyBodyToResponse();
     }
@@ -114,7 +116,7 @@ public class LoggerFilter extends OncePerRequestFilter {
                                 request,
                                 response,
                                 filteredRequest,
-                                (!options.isDropResponseValue()) ? filteredResponse.filteredResponse : null,
+                                (!options.isDropResponseValue()) ? filteredResponse.filteredResponse : "",
                                 filteredResponse.code,
                                 filteredResponse.message,
                                 options)
@@ -131,7 +133,7 @@ public class LoggerFilter extends OncePerRequestFilter {
         Map<String, Object> mapContent = mapContent(objectMapper, requestNativeContent, Optional.ofNullable(request.getHeader(CONTENT_TYPE)).orElse(APPLICATION_JSON));
         try {
             Map<String, Object> filterContent = filterContent(mapContent, options.getHideKeywords(), 2);
-            return objectMapper.writeValueAsString(filterContent);
+            return filterContent.size() == 0 ? "" : objectMapper.writeValueAsString(filterContent);
         } catch (Exception ignored) {
             return requestNativeContent;
         }
@@ -206,7 +208,7 @@ public class LoggerFilter extends OncePerRequestFilter {
     }
 
     private Map<String, Object> mapContent(ObjectMapper objectMapper, String content, String mediaType) {
-        Arrays.stream(mediaType.split(",")).filter(i -> (i.contains(APPLICATION_JSON)) ? true : null);
+        Arrays.stream(mediaType.split(";")).filter(i -> (i.contains(APPLICATION_JSON)) ? true : null);
         return mapContent(objectMapper, content);
     }
 
@@ -214,7 +216,7 @@ public class LoggerFilter extends OncePerRequestFilter {
         try {
             return objectMapper.readValue(content, TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class));
         } catch (JsonProcessingException e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 }
