@@ -66,11 +66,9 @@ public class LoggerFilter extends OncePerRequestFilter {
         LocalDateTime start = LocalDateTime.now();
 
         filterChain.doFilter(request, response);
-        doLogger(request, response, start);
         try {
-//            doLogger(request, response, start);
+            doLogger(request, response, start);
         } catch (Exception e) {
-            e.printStackTrace();
         }
         response.copyBodyToResponse();
     }
@@ -131,23 +129,26 @@ public class LoggerFilter extends OncePerRequestFilter {
         String requestNativeContent = Optional.of(nativeRequest(request)).orElse("");
 
         Map<String, Object> mapContent = mapContent(objectMapper, requestNativeContent, Optional.ofNullable(request.getHeader(CONTENT_TYPE)).orElse(APPLICATION_JSON));
-        try {
-            Map<String, Object> filterContent = filterContent(mapContent, options.getHideKeywords(), 2);
-            return filterContent.size() == 0 ? "" : objectMapper.writeValueAsString(filterContent);
-        } catch (Exception ignored) {
-            return requestNativeContent;
+        Map<String, Object> filterContent = filterContent(mapContent, options.getHideKeywords(), 2);
+
+        if (filterContent.size() > 0) {
+            try {
+                return objectMapper.writeValueAsString(filterContent);
+            } catch (JsonProcessingException ignored) { }
         }
+        return requestNativeContent;
     }
 
     private ResponseMap doResponse(ContentCachingResponseWrapper response) {
         String responseNativeContent = Optional.of(nativeResponse(response)).orElse("");
 
-        try {
-            Map<String, Object> responseMaskContent = filterContent(mapContent(objectMapper, responseNativeContent), options.getHideKeywords(), 2);
-            return new ResponseMap(objectMapper.writeValueAsString(responseMaskContent), responseMaskContent.get(CODE).toString(), responseMaskContent.get(MESSAGE).toString());
-        } catch (Exception e) {
-            return new ResponseMap(responseNativeContent, null, null);
+        if (responseNativeContent.length() > 0) {
+            try {
+                Map<String, Object> responseMaskContent = filterContent(mapContent(objectMapper, responseNativeContent), options.getHideKeywords(), 2);
+                return new ResponseMap(objectMapper.writeValueAsString(responseMaskContent), responseMaskContent.get(CODE).toString(), responseMaskContent.get(MESSAGE).toString());
+            } catch (JsonProcessingException ignored) { }
         }
+        return new ResponseMap(responseNativeContent, null, null);
     }
 
     @AllArgsConstructor
@@ -213,10 +214,12 @@ public class LoggerFilter extends OncePerRequestFilter {
     }
 
     private Map<String, Object> mapContent(ObjectMapper objectMapper, String content) {
-        try {
-            return objectMapper.readValue(content, TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class));
-        } catch (JsonProcessingException e) {
-            return Collections.emptyMap();
+        if (content.length() > 0) {
+            try {
+                return objectMapper.readValue(content, TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class));
+            } catch (JsonProcessingException ignored) {
+            }
         }
+        return Collections.emptyMap();
     }
 }
